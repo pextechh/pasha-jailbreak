@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tr" manifest="cache.appcache">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pasha JB</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body {
+        margin: 0; padding: 0;
+        min-height: 100%;
+        background: #080a0e;
+        color: #c8ced8;
+        font: 14px/1.6 "Segoe UI", system-ui, sans-serif;
+      }
+
+      /* ── Üst bar ── */
+      #brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 11px 20px;
+        background: #0d1017;
+        border-bottom: 1px solid #1c2330;
+      }
+      .p-logo {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #e85d04;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -.5px;
+        flex-shrink: 0;
+        user-select: none;
+      }
+      #brand-name {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: .18em;
+        color: #e8ecf3;
+        text-transform: uppercase;
+      }
+
+      /* ── Spinner merkez ── */
+      #spin-wrap {
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      #spin {
+        width: 46px; height: 46px;
+        border: 3px solid #1c2330;
+        border-top-color: #e85d04;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      #spin-label {
+        font-size: 12px;
+        color: #4a5568;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      /* ── Hata mesajı ── */
+      #msg {
+        position: fixed;
+        top: 50%; left: 0; right: 0;
+        transform: translateY(-50%);
+        text-align: center;
+        padding: 0 28px;
+        display: none;
+      }
+      #msg-emoji { font-size: 36px; margin-bottom: 10px; line-height: 1; }
+      #msg-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #e53e3e;
+        margin-bottom: 6px;
+      }
+      #msg-sub {
+        font-size: 12px;
+        color: #4a5568;
+      }
+
+      /* ── Log wrap ── */
+      #wrap { padding: 0; }
+      #state, #out { display: none; }
+
+      /* State geçişleri */
+      body.done #spin-wrap { display: none; }
+
+      body.fail #spin-wrap { display: none; }
+      body.fail #msg        { display: block; }
+
+      body.log #spin-wrap,
+      body.log #msg         { display: none; }
+      body.log #wrap        { padding: 14px 18px; }
+      body.log #state {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 10px;
+      }
+      body.log #out {
+        display: block;
+        white-space: pre-wrap;
+        font: 12px/1.5 Consolas, monospace;
+        background: #0d1017;
+        border: 1px solid #1c2330;
+        border-radius: 6px;
+        padding: 10px 13px;
+        height: calc(100vh - 141px);
+        overflow-y: auto;
+      }
+
+      /* Renkler */
+      .ok     { color: #38a169; }
+      .bad    { color: #e53e3e; }
+      .warn   { color: #d69e2e; }
+      .safe   { color: #38a169; }
+      .danger { color: #e53e3e; }
+      code    { color: #9fb3d0; }
+    </style>
+  </head>
+  <body>
+
+    <div id="brand">
+      <div class="p-logo">P!</div>
+      <span id="brand-name">Pasha Jailbreak</span>
+    </div>
+
+    <div id="spin-wrap">
+      <div id="spin"></div>
+      <div id="spin-label">Çalışıyor…</div>
+    </div>
+
+    <div id="msg">
+      <div id="msg-emoji">⚠️</div>
+      <div id="msg-title">Konsolu Yeniden Başlatın</div>
+      <div id="msg-sub">Jailbreak tamamlandı veya bir hata oluştu.</div>
+    </div>
+
+    <div id="wrap">
+      <div id="state"></div>
+      <div id="out"></div>
+    </div>
+
+    <script type="module">
+      import "./jb.js?v=10";
+    </script>
+  </body>
+</html>

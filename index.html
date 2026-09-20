@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr" manifest="cache.appcache">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pasha JB</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #080a0e;
+    color: #c8ced8;
+    font: 14px/1.6 "Segoe UI", system-ui, sans-serif;
+    min-height: 100%;
+  }
+
+  /* ── Üst bar ── */
+  #brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 20px;
+    background: #0d1017;
+    border-bottom: 1px solid #1c2330;
+  }
+  .p-logo {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #e85d04;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -.5px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  #brand-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: #e8ecf3;
+    text-transform: uppercase;
+  }
+
+  /* ── Ana kart ── */
+  #wrap {
+    padding: 22px 20px 28px;
+    max-width: 500px;
+  }
+
+  /* Durum başlığı */
+  #state {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    line-height: 1.35;
+  }
+
+  /* Firmware satırı */
+  #fw-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .fw-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #4a5568;
+    font-weight: 600;
+  }
+  #fw-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #0d1017;
+    border: 1px solid #1c2330;
+    font-size: 12px;
+    font-weight: 600;
+    color: #c8ced8;
+  }
+  #fw-pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4a5568;
+  }
+  #fw-pill.ok  .dot { background: #38a169; }
+  #fw-pill.ok       { border-color: #276749; }
+  #fw-pill.bad .dot { background: #e53e3e; }
+  #fw-pill.bad      { border-color: #742a2a; }
+
+  /* Durum mesajı küçük */
+  #det {
+    font-size: 12px;
+    color: #4a5568;
+    margin: 0 0 6px;
+  }
+  #det b { color: #a0aec0; font-weight: 600; }
+
+  /* Önbellek */
+  #cache {
+    font-size: 12px;
+    color: #4a5568;
+    min-height: 16px;
+    margin-bottom: 16px;
+  }
+  #cache.cacheok { color: #38a169; }
+
+  /* Ayırıcı */
+  .divider {
+    height: 1px;
+    background: #1c2330;
+    margin: 16px 0;
+  }
+
+  /* Bilgi kutusu */
+  .info-box {
+    padding: 12px 14px;
+    background: #0d1017;
+    border: 1px solid #1c2330;
+    border-left: 3px solid #e85d04;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #718096;
+  }
+  .info-box .row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+    align-items: baseline;
+  }
+  .info-box .row:last-child { margin-bottom: 0; }
+  .info-box .lbl {
+    color: #4a5568;
+    min-width: 100px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .info-box .val { color: #c8ced8; font-weight: 600; }
+
+  /* Renkler */
+  .ok   { color: #38a169; }
+  .bad  { color: #e53e3e; }
+  .warn { color: #d69e2e; }
+</style>
+</head>
+<body>
+
+<div id="brand">
+  <div class="p-logo">P!</div>
+  <span id="brand-name">Pasha Jailbreak</span>
+</div>
+
+<div id="wrap">
+  <div id="state">Konsol Kontrol Ediliyor…</div>
+
+  <div id="fw-row">
+    <span class="fw-label">Firmware</span>
+    <span id="fw-pill"><span class="dot"></span><span id="fw-ver">—</span></span>
+  </div>
+
+  <div id="cache"></div>
+  <div id="det"></div>
+
+  <div class="divider"></div>
+
+  <div class="info-box">
+    <div class="row">
+      <span class="lbl">Desteklenen</span>
+      <span class="val">13.02 · 13.04 · 13.50 · 13.52</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Başlatmak için</span>
+      <span class="val">X'e bas</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var stateEl = document.getElementById("state");
+  var detEl   = document.getElementById("det");
+  var cacheEl = document.getElementById("cache");
+  var fwPill  = document.getElementById("fw-pill");
+  var fwVerEl = document.getElementById("fw-ver");
+
+  function setState(t, c) { stateEl.textContent = t; stateEl.className = c || ""; }
+  function setCache(t, ok) { cacheEl.textContent = t; cacheEl.className = ok ? "cacheok" : ""; }
+
+  var params = new URLSearchParams(location.search);
+  var SUPPORTED = { 1302: 1, 1304: 1, 1350: 1, 1352: 1 };
+
+  var key = null, fwnum = null;
+  var m = /PlayStation\s+4[\/ ](\d+)\.(\d+)/.exec(navigator.userAgent);
+  if (m) {
+    var ms = parseInt(m[2], 16).toString(16);
+    if (ms.length < 2) ms = "0" + ms;
+    key = m[1] + "." + ms;
+    fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10);
+  }
+
+  var forced    = params.get("force") === "1";
+  var supported = forced || (fwnum !== null && SUPPORTED[fwnum] === 1);
+
+  fwVerEl.textContent = key || "bilinmiyor";
+  fwPill.className = supported ? "ok" : "bad";
+
+  detEl.innerHTML = "Firmware <b>" + (key || "bilinmiyor") + "</b>"
+    + (supported
+        ? " &middot; <span class='ok'>destekleniyor</span>"
+        : " &middot; <span class='bad'>bu sürüm desteklenmiyor</span>");
+
+  var target = "jb.html" + location.search;
+
+  function go() {
+    setState("Jailbreak yükleniyor…", "warn");
+    location.replace(target);
+  }
+
+  function waitForX(msg, action) {
+    setState(msg, "warn");
+    function fire(e) {
+      // Sadece X tuşuna (PlayStation'da genelde Enter/Space/gamepad) veya click
+      if (e.type === "keydown" && e.key !== "Enter" && e.key !== " " && e.key !== "x" && e.key !== "X") return;
+      window.removeEventListener("click",   fire);
+      window.removeEventListener("keydown", fire);
+      action();
+    }
+    window.addEventListener("click",   fire);
+    window.addEventListener("keydown", fire);
+  }
+
+  if (!supported) {
+    setState("DESTEKLENMİYOR", "bad");
+    waitForX("DESTEKLENMİYOR (" + (key || "bilinmiyor") + ") — yine de başlatmak için X'e bas", go);
+    return;
+  }
+
+  var ac = window.applicationCache;
+  if (!ac || !document.documentElement.hasAttribute("manifest")) {
+    go();
+  } else if (!navigator.onLine) {
+    setCache("çevrimdışı — önbellekten yükleniyor", true);
+    go();
+  } else if (ac.status === ac.IDLE) {
+    setCache("önbelleğe alındı", true);
+    go();
+  } else if (ac.status === ac.UPDATEREADY) {
+    try { ac.swapCache(); } catch (e) {}
+    setCache("güncelleme indirildi", true);
+    waitForX("GÜNCELLEME HAZIR — yeniden yüklemek için X'e bas",
+             function () { location.reload(); });
+  } else {
+    setCache("önbellek kontrol ediliyor…");
+    ac.addEventListener("downloading",
+      function () { setCache("ilk çalıştırma — önbelleğe alınıyor…"); }, false);
+    ac.addEventListener("progress", function (e) {
+      if (e && e.total)
+        setCache("önbelleğe alınıyor %" + Math.round((e.loaded / e.total) * 100));
+    }, false);
+    ac.addEventListener("cached", function () {
+      setCache("çevrimdışı kullanım için hazır", true);
+      waitForX("ÖNBELLEKLENDİ — başlatmak için X'e bas", go);
+    }, false);
+    ac.addEventListener("updateready", function () {
+      try { ac.swapCache(); } catch (e) {}
+      setCache("güncelleme indirildi", true);
+      waitForX("GÜNCELLEME HAZIR — yeniden yüklemek için X'e bas",
+               function () { location.reload(); });
+    }, false);
+    ac.addEventListener("noupdate", function () {
+      setCache("önbellekte — çevrimdışı hazır", true);
+      go();
+    }, false);
+    ac.addEventListener("error", function () {
+      setCache("önbellek kullanılamıyor");
+      waitForX("ÖNBELLEK HATASI — yine de başlatmak için X'e bas", go);
+    }, false);
+    ac.addEventListener("obsolete", function () {
+      setCache("önbellek geçersiz");
+      waitForX("ÖNBELLEK GEÇERSİZ — başlatmak için X'e bas", go);
+    }, false);
+  }
+})();
+</script>
+</body>
+</html>
